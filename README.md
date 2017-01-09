@@ -15,7 +15,7 @@ I haven't been able to figure out what some of the bytes mean. They could be che
 * [Sysex messages sent by the TT-303](#sysex-messages-sent-by-the-tt-303)
   * [Self-Identification](#self-identification)
   * [Dump User Pattern](#dump-user-pattern) (TODO: duplicate anchor name)
-  * [Global Settings](#global-settings)
+  * [Dump Global Settings](#dump-global-settings)
   * [Accept or Decline Restore](#accept-or-decline-restore)
   * [Ready/Acknowledged](#ready-acknowledged)
 * [Constants and Data Structures](#constants-and-data-structures)
@@ -59,11 +59,11 @@ Message type 13. Ask the TT-303 to send a full memory backup.
 
 The TT-303 should respond with the following sequence of 232 sysex messages:
 
-| Message type                               | Number sent | Notes |
-|:------------------------------------------ |:----------- |:----- |
-| [Dump User Pattern](#dump-user-pattern)    | 224         |       |
-| ???                                        | 7           | All seven messages are identical, and appear to be empty envelopes: `F0 00 01 7A 01 14 38 27 04 07 2B 00 F7`. These are probably supposed to be tracks, but track backup doesn't seem to be working properly: if I create a backup, modify a track, and then restore the backup, the track does not revert to the original version. |
-| [Global Settings](#global-settings)        | 1           |       |
+| Message type                                  | Number sent | Notes |
+|:--------------------------------------------- |:----------- |:----- |
+| [Dump User Pattern](#dump-user-pattern)       | 224         |       |
+| ???                                           | 7           | All seven messages are identical, and appear to be empty envelopes: `F0 00 01 7A 01 14 38 27 04 07 2B 00 F7`. These are probably supposed to be tracks, but track backup doesn't seem to be working properly: if I create a backup, modify a track, and then restore the backup, the track does not revert to the original version. |
+| [Dump Global Settings](#dump-global-settings) | 1           |       |
 
 ### Propose Restore
 
@@ -108,22 +108,22 @@ Provides the TT-303's serial number, hardware revision, and OS version.
 
 (That's not a typo above: the message really does include two copies of `01 00 00` at the end.)
 
-### Dump User Pattern (message type 14)
+### Dump User Pattern
 
-Describes a single user pattern. See the [User Pattern](#data-user-pattern) data structure.
+Message type 14. Describes a single user pattern. See the [User Pattern](#data-user-pattern) data structure.
 
-### Global Settings (message type 14)
+### Dump Global Settings
 
-Describes the TT-303's global settings (anything not specific to a pattern or track).
+Message type 14. Describes the TT-303's global settings (anything not specific to a pattern or track).
 
-| Element                          | Bytes | Value |
-|:-------------------------------- |:----- |:----- |
-| indicates a global settings dump | 1     | `3F`  |
-| ???                              | 1     | `00` in all of my tests |
-| ???                              | 1     | `01` in all of my tests |
-| ???                              | 1     | `04` in all of my tests |
-| system LED color                 | 1     | One of the values from the [LED Colors](#led-colors) table |
-| ???                              | 1     | `00` in all of my tests |
+| Element          | Bytes | Value |
+|:---------------- |:----- |:----- |
+| ???              | 1     | `3F` in all of my tests |
+| ???              | 1     | `00` in all of my tests |
+| ???              | 1     | `01` in all of my tests |
+| ???              | 1     | `04` in all of my tests |
+| system LED color | 1     | One of the values from the [LED Colors](#led-colors) table |
+| ???              | 1     | `00` in all of my tests |
 
 The MIDI channel and VCA gate time settings don't seem to be transmitted.
 
