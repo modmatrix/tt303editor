@@ -6,15 +6,15 @@ I've made every effort to ensure its accuracy, but I am not responsible if you l
 
 I haven't been able to figure out what some of the bytes mean. They could be checksums, version numbers, serial numbers, placeholders for future use, or anything else. If you figure it out, please let me know!
 
+* [Envelope](#envelope)
 * [Sysex messages recognized by the TT-303](#sysex-messages-recognized-by-the-tt-303)
   * [Request Self-Identification](#request-self-identification)
   * [Request Backup](#request-backup)
   * [Propose Restore](#propose-restore)
   * [Write User Pattern](#write-user-pattern)
 * [Sysex messages sent by the TT-303](#sysex-messages-sent-by-the-tt-303)
-  * [Envelope](#envelope) (TODO: potential duplicate anchor name)
   * [Self-Identification](#self-identification)
-  * [User Pattern](#user-pattern) (TODO: duplicate anchor name)
+  * [Dump User Pattern](#dump-user-pattern) (TODO: duplicate anchor name)
   * [Global Settings](#global-settings)
   * [Accept or Decline Restore](#accept-or-decline-restore)
   * [Ready/Acknowledged](#ready-acknowledged)
@@ -23,70 +23,66 @@ I haven't been able to figure out what some of the bytes mean. They could be che
   * [Note Numbers](#note-numbers)
   * [LED Colors](#ed-colors)
 
+## Envelope
+
+All sysex messages sent and received by the TT-303 use the same basic envelope:
+
+element             | bytes    | value
+------------------- | -------- | -----
+begin sysex message | 1        | `F0`
+manufacturer ID     | 3        | `00 01 7A` (Rezonance Labs)
+device or model ID? | 1        | `01`
+???                 | 6        | `38 27 04 07 2B 00`; not included in [Request Self-Identification](#request-self-identification)
+message type        | 1        | The ID for one of the specific message types described below.
+message body        | variable | One of the specific message types described below.
+end sysex message   | 1        | `F7`
+
+I suspect that the unknown six-byte sequence (or at least part of it) unique identifies this particular TT-303.
+
+005910 - my serial # inside battery compartment
+
 ## Sysex messages recognized by the TT-303
 
 ### Request Self-Identification
 
-00  F0 00 01 7A 01 10 3F 3F  0F 3F 3F 0F 00 00 00 F7
+3F 3F 0F 3F 3F 0F 00 00 00
 
-Ask any TT-303s that are listening to identify themselves.
+Message type 10. Ask any TT-303s that are listening to identify themselves.
 
-The TT-303 should respond with its [Self-Identification](#self-id) message.
+The TT-303 should respond with its [Self-Identification](#self-identification) message.
 
 ### Request Backup
 
-Ask the TT-303 to send a full memory backup.
+Message type 13. Ask the TT-303 to send a full memory backup.
 
-00  F0 00 01 7A 01 13 3F 3F  0F 3F 3F 0F 38 27 04 07
-10  2B 00 01 00 00 00 00 00  F7
+3F 3F 0F 3F 3F 0F 38 27 04 07 2B 00 01 00 00 00 00 00
 
 The TT-303 should respond with the following sequence of 232 sysex messages:
 
-message type                          | number sent | notes
-------------------------------------- | ----------- | -----
-[User Pattern](#user-pattern)    | 224         |
-???                                   | 7           | All seven messages are identical, and appear to be empty envelopes: `F0 00 01 7A 01 14 38 27 04 07 2B 00 F7`. These are probably supposed to be tracks, but track backup doesn't seem to be working properly: if I create a backup, modify a track, and then restore the backup, the track does not revert to the original version.
-[Global Settings](#global-settings)   | 1           | 
-
+message type                               | number sent | notes
+------------------------------------------ | ----------- | -----
+[Dump User Pattern](#dump-user-pattern)    | 224         |
+???                                        | 7           | All seven messages are identical, and appear to be empty envelopes: `F0 00 01 7A 01 14 38 27 04 07 2B 00 F7`. These are probably supposed to be tracks, but track backup doesn't seem to be working properly: if I create a backup, modify a track, and then restore the backup, the track does not revert to the original version.
+[Global Settings](#global-settings)        | 1           | 
 
 ### Propose Restore
 
-Asks the TT-303 whether it will accept an overwrite of its memory. Clients (*e.g.*, Cyclone Studio, or other applications which wish to write to the TT-303) should repeatedly poll the TT-303 with this message (about once a second) until the TT-303 accepts.
+Message type 13. Asks the TT-303 whether it will accept an overwrite of its memory. Clients (*e.g.*, Cyclone Studio, or other applications which wish to write to the TT-303) should repeatedly poll the TT-303 with this message (about once a second) until the TT-303 accepts.
 
 The TT-303 will respond with an [Accept or Decline Restore](#accept-or-decline-restore) message.
 
-00  F0 00 01 7A 01 13 3F 3F  0F 3F 3F 0F 38 27 04 07
-10  2B 00 00 00 01 F7
+3F 3F 0F 3F 3F 0F 38 27 04 07 2B 00 00 00 01
 
 ### Write User Pattern
 
-Overwrite a single user pattern. The TT-303 will respond with a [Ready/Acknowledged](#ready-acknowledged) message.
-
-00  F0 00 01 7A 01 14 38 27  04 07 2B 00 05 05 00 0D  |   z  8'  +     |
-10  3F 0D 00 10 00 00 00 00  00 00 00 00 00 00 00 00  |?               |
-20  00 00 00 00 00 00 00 27  07 00 07 07 00 07 07 01  |       '        |
-30  27 07 00 27 07 00 07 07  00 27 27 08 07 27 00 F7  |'  '     ''  '  |
+Message type 14. Overwrite a single user pattern. The TT-303 will respond with a [Ready/Acknowledged](#ready-acknowledged) message. Follows the [User Pattern](#user-pattern) data structure.
 
 
 
 
 ## Sysex messages sent by the TT-303
 
-### Envelope
-
-All sysex responses from the TT-303 use the same basic envelope:
-
-element             | bytes    | value
-------------------- | -------- | -----
-begin sysex message | 1        | `F0`
-manufacturer ID     | 1        | `00`
-device ID           | 1        | `01`
-model ID            | 1        | `7A`
-???                 | 8        | `01 14 38 27 04 07 2B 00`
-message body        | variable | One of the specific message types described below.
-end sysex message   | 1        | `F7`
-
-### Self-Identification
+### Self-Identification (message type ID 11)
 
 Provides the TT-303's serial number, hardware revision, and OS version.
 
@@ -112,11 +108,11 @@ serial number part 6 | 2     | `33 32`
 
 (That's not a typo above: the message really does include two copies of `01 00 00` at the end.)
 
-### User Pattern
+### Dump User Pattern (message type 14)
 
 Describes a single user pattern. See the [User Pattern](#data-user-pattern) data structure.
 
-### Global Settings
+### Global Settings (message type 14)
 
 Describes the TT-303's global settings (anything not specific to a pattern or track).
 
