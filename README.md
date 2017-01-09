@@ -2,7 +2,7 @@
 
 I reverse-engineered this format by examining the sysex messages transmitted between my TT-303 and the [Cyclone Studio](http://www.cyclone-analogic.fr/en/content/10-download) application. I used a rev1.0 BassBot running firmware v2.0, and Cyclone Studio 1.1.14051 for MacOS.
 
-I've made every effort to ensure its accuracy, but I am not responsible if you lose your patterns or fry your TT-303.
+I've made every effort to ensure its accuracy, but I am not responsible if you lose your patterns or fry your TT-303. **Back up your patterns before experimenting with sysex!**
 
 I haven't been able to figure out what some of the bytes mean. They could be checksums, version numbers, serial numbers, placeholders for future use, or anything else. If you figure it out, please let me know!
 
@@ -16,7 +16,7 @@ I haven't been able to figure out what some of the bytes mean. They could be che
   * [Self-Identification](#self-identification)
   * [User Pattern](#user-pattern) (TODO: duplicate anchor name)
   * [Global Settings](#global-settings)
-  * [Accept or Decline Restore](#accept-decline-restore)
+  * [Accept or Decline Restore](#accept-or-decline-restore)
   * [Ready/Acknowledged](#ready-acknowledged)
 * [Constants and Data Structures](#constants-and-data-structures)
   * [User Pattern](#user-pattern) (TODO: duplicate anchor name)
@@ -31,7 +31,7 @@ I haven't been able to figure out what some of the bytes mean. They could be che
 
 Ask any TT-303s that are listening to identify themselves.
 
-The TT-303 should respond with its [Self-Identification](#out-self-id) message.
+The TT-303 should respond with its [Self-Identification](#self-id) message.
 
 ### Request Backup
 
@@ -44,23 +44,23 @@ The TT-303 should respond with the following sequence of 232 sysex messages:
 
 message type                          | number sent | notes
 ------------------------------------- | ----------- | -----
-[User Pattern](#out-user-pattern)    | 224         |
+[User Pattern](#user-pattern)    | 224         |
 ???                                   | 7           | All seven messages are identical, and appear to be empty envelopes: `F0 00 01 7A 01 14 38 27 04 07 2B 00 F7`. These are probably supposed to be tracks, but track backup doesn't seem to be working properly: if I create a backup, modify a track, and then restore the backup, the track does not revert to the original version.
-[Global Settings](#out-global-settings)   | 1           | 
+[Global Settings](#global-settings)   | 1           | 
 
 
 ### Propose Restore
 
 Asks the TT-303 whether it will accept an overwrite of its memory. Clients (*e.g.*, Cyclone Studio, or other applications which wish to write to the TT-303) should repeatedly poll the TT-303 with this message (about once a second) until the TT-303 accepts.
 
-The TT-303 will respond with an [Accept or Decline Restore](#accept-decline-restore) message.
+The TT-303 will respond with an [Accept or Decline Restore](#accept-or-decline-restore) message.
 
 00  F0 00 01 7A 01 13 3F 3F  0F 3F 3F 0F 38 27 04 07
 10  2B 00 00 00 01 F7
 
 ### Write User Pattern
 
-Overwrite a single user pattern. The TT-303 will respond with a [Ready/Acknowledged](#out-ready) message.
+Overwrite a single user pattern. The TT-303 will respond with a [Ready/Acknowledged](#ready-acknowledged) message.
 
 00  F0 00 01 7A 01 14 38 27  04 07 2B 00 05 05 00 0D  |   z  8'  +     |
 10  3F 0D 00 10 00 00 00 00  00 00 00 00 00 00 00 00  |?               |
@@ -155,26 +155,24 @@ The TT-303 responds to [Write Pattern](#write-pattern) requests with this messag
 
 ### User Pattern
 
+This data structure is used in the [Write User Pattern](#write-user-pattern) and [User Pattern](#user-pattern) messages.
+
 element                     | bytes    | value
 --------------------------- | -------- | -----
 track number (zero-based)   | 1        | `00` through `06`
 pattern number (zero-based) | 1        | `00` through `1F`. `00`-`07` is Section A, `08`-`0F` is Section B, `10`-`17` is Section AA, and `18`-`1F` is Section BB.
 ???                         | 2        | `00 0D` in all of my tests
-LED color                   | 2        | `3F 0D` to use the system default color, or *`color`* `01` to use a custom color (where *`color`* is a value from [the Colors table](#colors))
+LED color                   | 2        | `3F 0D` to use the system default color, or *`color`*` 01` to use a custom color (where *`color`* is a value from [the Colors table](#colors))
 pattern timing              | 1        | `00` for normal time, or `01` for triplet time
-pattern length (1-based)    | 1        | `00` for an empty pattern, or `01` through `40` for patterns which contain steps
+pattern length (1-based)    | 1        | `01` through `40` (or `00` for an empty pattern)
 ???                         | 19       | `00` in all of my tests
 pattern contents            | variable | see below
 
 The pattern contents are arranged into three-byte groups.
 
-The first two bytes of each group are notes (or ties or rests). The TT-303 does not use standard MIDI note numbers. Instead, it uses these values:
+The first two bytes of each group are notes (or ties or rests). The TT-303 does not use standard MIDI note numbers. See [Note Numbers](#note-numbers) for the proper values.
 
-
-
-Note that, although `2C` (the rightmost C on the TT-303, with the "Down" modifier applied) and `00` (the leftmost C, unmodified) are musically the same note, they are considered distinct. (The same is true for `0C` and `10`).
-
-For a pattern with an odd number of steps, the second byte in the last group will use the null value as a placeholder.
+For a pattern with an odd number of steps, the second byte in the last group will use the null value (`0D`) as a placeholder.
 
 The third byte describes any accent and slide modifiers for the two notes. It is a simple bitmask:
 
@@ -205,6 +203,8 @@ C    | `0C`   | `1C` | `2C`
 tie  | `2D`
 rest | `3D`
 null | `0D`
+
+Note that, although `2C` (the rightmost C on the TT-303, with the "Down" modifier applied) and `00` (the leftmost C, unmodified) are musically the same note, they are considered distinct. (The same is true for `0C` and `10`).
 
 ### LED Colors
 
