@@ -112,11 +112,11 @@ serial number part 6 | 2     | `33 32`
 
 (That's not a typo above: the message really does include two copies of `01 00 00` at the end.)
 
-### <a href="out-user-pattern"></a>User Pattern [#](#out-user-pattern)
+### <a name="out-user-pattern"></a>User Pattern [#](#out-user-pattern)
 
 Describes a single user pattern. See the [User Pattern](#data-user-pattern) data structure.
 
-### <a href="out-global-settings"></a>Global Settings [#](#out-global-settings)
+### <a name="out-global-settings"></a>Global Settings [#](#out-global-settings)
 
 Describes the TT-303's global settings (anything not specific to a pattern or track).
 
