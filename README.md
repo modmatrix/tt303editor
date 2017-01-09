@@ -6,8 +6,8 @@ I've made every effort to ensure its accuracy, but I am not responsible if you l
 
 I haven't been able to figure out what some of the bytes mean. They could be checksums, version numbers, serial numbers, placeholders for future use, or anything else. If you figure it out, please let me know!
 
-* [Sysex messages recognized by the TT-303](#in)
-  * [Request Self-Identification](#in-request-self-id)
+* [Sysex messages recognized by the TT-303](#sysex-messages-recognized-by-the-tt303-)
+  * [Request Self-Identification](#request-self-identification-)
   * [Request Backup](#in-request-backup)
   * [Propose Restore](#in-propose-restore)
   * [Write User Pattern](#in-write-user-pattern)
@@ -23,9 +23,9 @@ I haven't been able to figure out what some of the bytes mean. They could be che
   * [Note Numbers](#data-note-numbers)
   * [LED Colors](#data-led-colors)
 
-## <a name="in"></a>Sysex messages recognized by the TT-303 [#](#in)
+## Sysex messages recognized by the TT-303
 
-### <a name="in-request-self-id"></a>Request Self-Identification [#](#in-request-self-id)
+### Request Self-Identification
 
 00  F0 00 01 7A 01 10 3F 3F  0F 3F 3F 0F 00 00 00 F7
 
@@ -33,7 +33,7 @@ Ask any TT-303s that are listening to identify themselves.
 
 The TT-303 should respond with its [Self-Identification](#out-self-id) message.
 
-### <a name="in-request-backup"></a>Request Backup [#](#in-request-backup)
+### <a name="in-request-backup"></a>Request Backup
 
 Ask the TT-303 to send a full memory backup.
 
@@ -49,7 +49,7 @@ message type                          | number sent | notes
 [Global Settings](#out-global-settings)   | 1           | 
 
 
-### <a name="in-propose-restore"></a>Propose Restore [#](#in-propose-restore)
+### <a name="in-propose-restore"></a>Propose Restore
 
 Asks the TT-303 whether it will accept an overwrite of its memory. Clients (*e.g.*, Cyclone Studio, or other applications which wish to write to the TT-303) should repeatedly poll the TT-303 with this message (about once a second) until the TT-303 accepts.
 
@@ -58,7 +58,7 @@ The TT-303 will respond with an [Accept or Decline Restore](#accept-decline-rest
 00  F0 00 01 7A 01 13 3F 3F  0F 3F 3F 0F 38 27 04 07
 10  2B 00 00 00 01 F7
 
-### <a name="in-write-user-pattern"></a>Write User Pattern [#](#in-write-user-pattern)
+### <a name="in-write-user-pattern"></a>Write User Pattern
 
 Overwrite a single user pattern. The TT-303 will respond with a [Ready/Acknowledged](#out-ready) message.
 
@@ -70,9 +70,9 @@ Overwrite a single user pattern. The TT-303 will respond with a [Ready/Acknowled
 
 
 
-## <a name="out"></a>Sysex messages sent by the TT-303 [#](#out)
+## <a name="out"></a>Sysex messages sent by the TT-303
 
-### <a name="out-envelope"></a>Envelope [#](#out-envelope)
+### <a name="out-envelope"></a>Envelope
 
 All sysex responses from the TT-303 use the same basic envelope:
 
@@ -86,7 +86,7 @@ model ID            | 1        | `7A`
 message body        | variable | One of the specific message types described below.
 end sysex message   | 1        | `F7`
 
-### <a name="out-self-id"></a>Self-Identification [#](#out-self-id)
+### <a name="out-self-id"></a>Self-Identification
 
 Provides the TT-303's serial number, hardware revision, and OS version.
 
@@ -112,11 +112,11 @@ serial number part 6 | 2     | `33 32`
 
 (That's not a typo above: the message really does include two copies of `01 00 00` at the end.)
 
-### <a name="out-user-pattern"></a>User Pattern [#](#out-user-pattern)
+### <a name="out-user-pattern"></a>User Pattern
 
 Describes a single user pattern. See the [User Pattern](#data-user-pattern) data structure.
 
-### <a name="out-global-settings"></a>Global Settings [#](#out-global-settings)
+### <a name="out-global-settings"></a>Global Settings
 
 Describes the TT-303's global settings (anything not specific to a pattern or track).
 
@@ -131,7 +131,7 @@ system LED color                 | 1     | One of the values from the Colors tab
 
 The MIDI channel and VCA gate time settings don't seem to be transmitted.
 
-### <a name="out-accept-decline-restore"></a>Accept or Decline Restore [#](#out-accept-decline-restore)
+### <a name="out-accept-decline-restore"></a>Accept or Decline Restore
 
 When the TT-303 receives a [Propose Restore](#propose-restore) message, it will respond with this.
 
@@ -151,9 +151,9 @@ The TT-303 responds to [Write Pattern](#write-pattern) requests with this messag
 
 
 
-## <a name="data"></a>Constants and data structures [#](#data)
+## <a name="data"></a>Constants and data structures
 
-### <a name="data-user-pattern"></a> User Pattern [#](#data-user-pattern)
+### <a name="data-user-pattern"></a> User Pattern
 
 element                     | bytes    | value
 --------------------------- | -------- | -----
@@ -185,7 +185,7 @@ first note - accent  | `02`
 second note - slide  | `04`
 second note - accent | `08`
 
-### <a name="data-note-numbers"></a>Note Numbers [#](#data-note-numbers)
+### <a name="data-note-numbers"></a>Note Numbers
 
 Note | Normal | Up   | Down
 ---- | ------ | ---- | ----
@@ -206,7 +206,7 @@ tie  | `2D`
 rest | `3D`
 null | `0D`
 
-### <a name="data-led-colors"></a>LED Colors [#](#data-led-colors)
+### <a name="data-led-colors"></a>LED Colors
 
 color        | value
 ------------ | ----- 
