@@ -1,8 +1,8 @@
-# TT-303 Sysex Specification
+# Bass Bot TT-303 Sysex Specification
 
 I reverse-engineered this format by examining the sysex messages transmitted between my TT-303 and the [Cyclone Studio](http://www.cyclone-analogic.fr/en/content/10-download) application. I used a rev1.0 BassBot running firmware v2.0, and Cyclone Studio 1.1.14051 for MacOS.
 
-I've made every effort to ensure its accuracy, but I am not responsible if you lose your patterns or fry your TT-303. **Back up your patterns before experimenting with sysex!**
+I've made every effort to ensure its accuracy, but I am not responsible if you lose your patterns or fry your TT-303. **Back up your Bass Bot before experimenting with sysex!**
 
 I haven't been able to figure out what some of the bytes mean. They could be checksums, version numbers, serial numbers, placeholders for future use, or anything else. If you figure it out, please let me know!
 
@@ -25,10 +25,10 @@ I haven't been able to figure out what some of the bytes mean. They could be che
 
 ## Envelope
 
-All sysex messages sent and received by the TT-303 use the same basic envelope:
+All sysex messages sent and received by the TT-303 use the same basic envelope, which adheres to the MIDI system exclusive standard:
 
 element             | bytes    | value
-------------------- | -------- | -----
+------------------- |:-------- |:-----
 begin sysex message | 1        | `F0`
 manufacturer ID     | 3        | `00 01 7A` (Rezonance Labs)
 device or model ID? | 1        | `01`
