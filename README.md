@@ -82,9 +82,9 @@ Message type 14. Overwrite a single user pattern. The TT-303 will respond with a
 
 ## Sysex messages sent by the TT-303
 
-### Self-Identification (message type ID 11)
+### Self-Identification
 
-Provides the TT-303's serial number, hardware revision, and OS version.
+Message type 11. Provides the TT-303's serial number, hardware revision, and OS version.
 
 | Element              | bytes | value |
 |:-------------------- |:----- |:----- |
